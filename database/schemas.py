@@ -1,8 +1,22 @@
-# schemas.py
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List, Any, Dict
+from typing import Optional, List
 from uuid import UUID
 from datetime import datetime, date
+
+# ---------------------
+# Token + User Info
+# ---------------------
+class LoginUserOut(BaseModel):
+    id: UUID
+    full_name: str
+    email: EmailStr
+
+class LoginResponse(BaseModel):
+    status_code: int
+    message: str
+    user: LoginUserOut
+    access_token: str
+    token_type: str = "Bearer"
 
 # ---------------------
 # Base Response Wrapper
@@ -10,7 +24,6 @@ from datetime import datetime, date
 class ResponseBase(BaseModel):
     status_code: int
     message: str
-
 
 # ---------------------
 # Auth / User
@@ -25,15 +38,34 @@ class UserOut(ResponseBase):
     email: EmailStr
     full_name: Optional[str] = None
     is_active: bool
+    workspace_id: UUID
+    role: str
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
+from typing import List
+from uuid import UUID
+from pydantic import BaseModel
+
+class UserMembership(BaseModel):
+    workspace_id: str
+    role: str
+
+class UserOutMultiple(BaseModel):
+    status_code: int
+    message: str
+    id: UUID
+    email: str
+    full_name: str
+    is_active: bool
+    memberships: List[UserMembership]
+    created_at: str
 
 class UserUpdate(BaseModel):
     full_name: Optional[str] = None
     is_active: Optional[bool] = None
-
 
 # ---------------------
 # Workspace
@@ -48,9 +80,9 @@ class WorkspaceOut(ResponseBase):
     subscription_status: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True
+    }
 
 # ---------------------
 # Membership
@@ -61,13 +93,13 @@ class MembershipOut(ResponseBase):
     workspace_id: UUID
     role: str
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class MembershipCreate(BaseModel):
     user_id: UUID
     role: str = "member"
-
 
 # ---------------------
 # Invitation
@@ -86,9 +118,9 @@ class InviteOut(ResponseBase):
     created_at: datetime
     expires_at: Optional[datetime]
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True
+    }
 
 # ---------------------
 # Integration
@@ -105,9 +137,9 @@ class IntegrationOut(ResponseBase):
     name: Optional[str]
     created_at: datetime
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True
+    }
 
 # ---------------------
 # Feedback
@@ -132,7 +164,6 @@ class FeedbackOut(ResponseBase):
     customer_name: Optional[str]
     raw_content: str
 
-    # AI enrichments
     sentiment: Optional[str]
     sentiment_score: Optional[float]
     confidence_score: Optional[float]
@@ -146,9 +177,9 @@ class FeedbackOut(ResponseBase):
     processed_at: Optional[datetime]
     created_at: datetime
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True
+    }
 
 # ---------------------
 # AI Analysis Job
@@ -171,9 +202,9 @@ class AIJobOut(ResponseBase):
     completed_at: Optional[datetime]
     created_at: datetime
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True
+    }
 
 # ---------------------
 # Usage & Billing
@@ -186,8 +217,9 @@ class UsageOut(ResponseBase):
     ai_analyses_run: int
     ai_cost_usd: float
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }
 
 class BillingEventOut(ResponseBase):
     id: UUID
@@ -199,9 +231,9 @@ class BillingEventOut(ResponseBase):
     event_data: Optional[dict]
     processed_at: datetime
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True
+    }
 
 # ---------------------
 # Insights Snapshot
@@ -225,9 +257,9 @@ class InsightsSnapshotOut(ResponseBase):
     recommendations: Optional[List[str]]
     generated_at: datetime
 
-    class Config:
-        orm_mode = True
-
+    model_config = {
+        "from_attributes": True
+    }
 
 # ---------------------
 # Webhook Event
@@ -248,5 +280,6 @@ class WebhookEventOut(ResponseBase):
     processed: bool
     received_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True
+    }

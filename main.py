@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database.db import Base, engine
 from database.models import *
-from routes import intercom_routes, slack_routes, zendesk_routes
+from routes import intercom_routes, slack_routes, zendesk_routes,auth_routes
 
 app= FastAPI(title='INSIGHTOPS API')
 app.add_middleware(
@@ -23,6 +23,7 @@ except Exception as e:
 app.include_router(intercom_routes.router)
 app.include_router(slack_routes.router)
 app.include_router(zendesk_routes.router)
+app.include_router(auth_routes.router)
 
 @app.get("/")
 def root():
