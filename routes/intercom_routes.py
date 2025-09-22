@@ -25,27 +25,29 @@ async def intercom_authorize():
 
 # Step 2: Handle OAuth callback
 @router.get("/callback")
-async def intercom_callback(request: Request):
-    # Intercom will redirect here with ?code=...&state=...
-    code = request.query_params.get("code")
-    state = request.query_params.get("state")
-
+async def intercom_callback(code: str = None, state: str = None):
     if not code:
-        return {"error": "Missing code in callback"}
+        return {"error": "No code returned from Intercom"}
 
-    # Exchange code for access token
-    token_url = "https://api.intercom.io/oauth/token"
-    payload = {
-        "grant_type": "authorization_code",
-        "client_id": INTERCOM_CLIENT_ID,
-        "client_secret": INTERCOM_CLIENT_SECRET,
-        "redirect_uri": INTERCOM_REDIRECT_URI,
-        "code": code
-    }
+    token_url = "https://api.intercom.io/auth/eagle/token"
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(token_url, json=payload)
-        data = response.json()
+        resp = await client.post(
+            token_url,
+            json={  # <- use json= instead of data=
+                "grant_type": "authorization_code",
+                "client_id": INTERCOM_CLIENT_ID,
+                "client_secret": INTERCOM_CLIENT_SECRET,
+                "redirect_uri": INTERCOM_REDIRECT_URI,
+                "code": code
+            },
+            headers={
+                "Accept": "application/json",  # required
+                "Content-Type": "application/json"
+            }
+        )
+        token_data = resp.json()
 
-    # data now contains 'access_token' for this workspace
-    return {"oauth_response": data}
+    # Save token_data['access_token'] to DB here
+    return {"token_data": token_data}
+
