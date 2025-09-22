@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
 from database.db import get_db
-from models import Integration
+from database.models import Integration
 from auth.validate_users import get_current_user, get_user_workspace
 
 load_dotenv()
